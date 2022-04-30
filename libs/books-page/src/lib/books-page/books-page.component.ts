@@ -18,7 +18,7 @@ import { BooksService } from '@book-co/shared-services';
 export class BooksPageComponent implements OnInit {
   books: BookModel[] = [];
   currentBook: BookModel | null = null;
-  total: number = 0;
+  total = 0;
 
   constructor(private booksService: BooksService) {}
 
