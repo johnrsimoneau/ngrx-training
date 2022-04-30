@@ -5,7 +5,7 @@ import { BookModel } from '@book-co/shared-models';
 // not doing it in the demo to save time
 export const booksLoaded = createAction(
   '[Books API] Books Loaded Success',
-  props<{ books: BookModel }>()
+  props<{ books: BookModel[] }>()
 );
 
 export const bookCreated = createAction(

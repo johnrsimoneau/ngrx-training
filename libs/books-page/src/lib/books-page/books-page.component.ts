@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { BooksPageActions } from '@book-co/books-page/actions';
+import { BooksApiActions, BooksPageActions } from '@book-co/books-page/actions';
 import {
   BookModel,
   BookRequiredProps,
@@ -35,6 +35,8 @@ export class BooksPageComponent implements OnInit {
     this.booksService.all().subscribe((books) => {
       this.books = books;
       this.updateTotals(books);
+
+      this.store.dispatch(BooksApiActions.booksLoaded({ books }));
     });
   }
 
@@ -79,9 +81,12 @@ export class BooksPageComponent implements OnInit {
       })
     );
 
-    this.booksService.create(bookProps).subscribe(() => {
+    this.booksService.create(bookProps).subscribe((book) => {
       this.getBooks();
       this.removeSelectedBook();
+
+      this.store.dispatch(BooksApiActions.bookCreated({ book }))
+
     });
   }
 
@@ -93,9 +98,11 @@ export class BooksPageComponent implements OnInit {
       })
     );
 
-    this.booksService.update(book.id, book).subscribe(() => {
+    this.booksService.update(book.id, book).subscribe((book) => {
       this.getBooks();
       this.removeSelectedBook();
+
+      this.store.dispatch(BooksApiActions.bookUpdated({ book }))
     });
   }
 
@@ -109,6 +116,8 @@ export class BooksPageComponent implements OnInit {
     this.booksService.delete(book.id).subscribe(() => {
       this.getBooks();
       this.removeSelectedBook();
+
+      this.store.dispatch(BooksApiActions.bookDeleted({ bookId: book.id }))
     });
   }
 }
