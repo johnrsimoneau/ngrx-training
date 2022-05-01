@@ -7,7 +7,7 @@ import {
   BookRequiredProps,
   calculateBooksGrossEarnings,
 } from '@book-co/shared-models';
-import {} from '@book-co/shared-state-books';
+import { selectActiveBook, selectAllBooks, selectBooksEarningsTotals } from '@book-co/shared-state-books';
 import { BooksService } from '@book-co/shared-services';
 
 @Component({
@@ -16,13 +16,17 @@ import { BooksService } from '@book-co/shared-services';
   styleUrls: ['./books-page.component.scss'],
 })
 export class BooksPageComponent implements OnInit {
-  books: BookModel[] = [];
-  currentBook: BookModel | null = null;
-  total = 0;
+  books$: Observable<BookModel[]>;
+  currentBook$: Observable<BookModel | null>;
+  total$: Observable<number>;
 
   constructor(
     private booksService: BooksService,
-    private store: Store) {}
+    private store: Store) {
+      this.books$ = store.select(selectAllBooks);
+      this.currentBook$ = store.select(selectActiveBook);
+      this.total$ = store.select(selectBooksEarningsTotals);
+    }
 
   ngOnInit() {
     this.getBooks();
@@ -33,15 +37,8 @@ export class BooksPageComponent implements OnInit {
 
   getBooks() {
     this.booksService.all().subscribe((books) => {
-      this.books = books;
-      this.updateTotals(books);
-
       this.store.dispatch(BooksApiActions.booksLoaded({ books }));
     });
-  }
-
-  updateTotals(books: BookModel[]) {
-    this.total = calculateBooksGrossEarnings(books);
   }
 
   onSelect(book: BookModel) {
@@ -50,8 +47,7 @@ export class BooksPageComponent implements OnInit {
         bookId: book.id
       })
     );
-  
-    this.currentBook = book;
+
   }
 
   onCancel() {
@@ -62,8 +58,6 @@ export class BooksPageComponent implements OnInit {
     this.store.dispatch(
       BooksPageActions.clearSelectedBook()
     );
-
-    this.currentBook = null;
   }
 
   onSave(book: BookRequiredProps | BookModel) {
